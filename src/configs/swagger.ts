@@ -12,7 +12,7 @@ const swagger: Options = {
       version,
       description: description(),
       title: `${displayName} (${env})`,
-      contact: { name: "Claret Nnamocha", email: "devclareo@gmail.com" },
+      contact: { name: "Dmitii Mukhutdinov", email: "flyingleafe@gmail.com" },
       servers: [{ url: `http://localhost:${port}` }],
     },
     basePath: "/api",

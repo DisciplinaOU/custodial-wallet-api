@@ -8,7 +8,7 @@ const schema = Joi.object({
     .valid("development", "production", "test", "provision")
     .default("development"),
   PORT: Joi.number().required(),
-  JWT_SECRET: Joi.string().required(),
+  JWT_SECRET_PATH: Joi.string().required(),
   WALLET_SECRET: Joi.string().required(),
   ETH_PROVIDER_URL: Joi.string().required(),
   DB_URL: Joi.string().required().description("Database connection URL"),
@@ -29,7 +29,7 @@ if (error) throw error;
 export const env = value.NODE_ENV;
 export const port = parseInt(value.PORT);
 export const dbURL = value.DB_URL;
-export const jwtSecret = value.JWT_SECRET;
+export const jwtSecretPath = value.JWT_SECRET_PATH
 export const walletSecret = value.WALLET_SECRET;
 export const dialect = value.DB_DIALECT;
 export const devEnv = env === "development";

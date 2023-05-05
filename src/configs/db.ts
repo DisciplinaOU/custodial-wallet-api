@@ -5,9 +5,10 @@ import Web3 from "web3";
 import { ethProviderUrl } from "../configs/env";
 import { btcNetwork, dbURL, dialect } from "./env";
 
-const dialectOptions = dbURL.includes("localhost")
+const dialectOptions = (dbURL.includes("localhost") | dbURL.includes("?host=/run"))
   ? {}
   : { ssl: { require: true, rejectUnauthorized: false } };
+
 
 export const db = new Sequelize(dbURL, {
   dialectOptions,

@@ -1,6 +1,7 @@
 import { devEnv } from "../../configs/env";
 import { jwt } from "../../helpers";
 import { User } from "../../models";
+import { AppConfig } from "../../types/config";
 import { UserSchema } from "../../types/models";
 import { others, user } from "../../types/services";
 
@@ -104,7 +105,8 @@ export const updatePassword = async (
  * @returns {others.Response} Contains status, message and data if any of the operation
  */
 export const logOtherDevicesOut = async (
-  params: others.LoggedIn
+  params: others.LoggedIn,
+  config: AppConfig,
 ): Promise<others.Response> => {
   try {
     const { userId } = params;
@@ -113,8 +115,9 @@ export const logOtherDevicesOut = async (
     await user.update({ loginValidFrom: Date.now().toString() });
 
     const data: any = jwt.generate({
-      payload: user.id,
-      loginValidFrom: user.loginValidFrom,
+      payload: { data: { publicAddress: user.ethereumAddress }},
+      expiresIn: "7d",
+      secret: config.jwtSecret,
     });
 
     return {

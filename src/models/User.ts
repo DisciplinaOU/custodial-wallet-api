@@ -1,8 +1,11 @@
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import * as jose from "jose";
+import * as crypto from "crypto";
 import { DataTypes } from "sequelize";
 import { walletSecret } from "../configs/env";
 import { db } from "../configs/db";
+
+const walletSecretHash = crypto.createHash("sha256").update(walletSecret).digest();
 
 const User = db.define(
   "User",
@@ -14,7 +17,6 @@ const User = db.define(
     othernames: { type: DataTypes.STRING },
     avatar: { type: DataTypes.STRING },
     ethereumAddress: { type: DataTypes.STRING },
-    bitcoinAddress: { type: DataTypes.STRING },
     role: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -28,25 +30,8 @@ const User = db.define(
     },
     phone: { type: DataTypes.STRING },
     location: { type: DataTypes.STRING },
-    password: {
-      type: DataTypes.STRING,
-      set(value: string) {
-        const salt = bcrypt.genSaltSync();
-        this.setDataValue("password", bcrypt.hashSync(value, salt));
-      },
-    },
-    ethereumAccount: {
-      type: DataTypes.TEXT,
-      set(value: string) {
-        this.setDataValue("ethereumAccount", jwt.sign(value, walletSecret));
-      },
-    },
-    bitcoinAccount: {
-      type: DataTypes.TEXT,
-      set(value: string) {
-        this.setDataValue("bitcoinAccount", jwt.sign(value, walletSecret));
-      },
-    },
+    password: { type: DataTypes.STRING }, 
+    ethereumAccount: { type: DataTypes.TEXT },
     gender: { type: DataTypes.STRING },
     dob: { type: DataTypes.DATE },
     isDeleted: {
@@ -78,6 +63,21 @@ const User = db.define(
   { timestamps: true, tableName: "user" }
 );
 
+const securePasswordAndAccount = async (user: any, options) => {
+  if (user.changed("password")) {
+    const salt = await bcrypt.genSalt();
+    user.password = await bcrypt.hash(user.password, salt);
+  }
+  if (user.changed("ethereumAccount") && typeof user.ethereumAccount !== "string") {
+    const acc = await new jose.EncryptJWT(user.ethereumAccount)
+      .setProtectedHeader({ alg: "dir", enc: "A128CBC-HS256" })
+      .encrypt(walletSecretHash);
+    user.ethereumAccount = acc;
+  }
+}
+
+User.beforeValidate(securePasswordAndAccount);
+
 User.prototype.toJSON = function () {
   const data = this.dataValues;
 
@@ -97,8 +97,9 @@ User.prototype.validatePassword = function (val: string) {
   return bcrypt.compareSync(val, this.getDataValue("password"));
 };
 
-User.prototype.resolveAccount = function ({ account = "ethereum" }) {
-  return jwt.verify(this.getDataValue(`${account}Account`), walletSecret);
+User.prototype.resolveAccount = async function ({ account = "ethereum" }) {
+  const { payload } = await jose.jwtDecrypt(this.getDataValue(`${account}Account`), walletSecretHash);
+  return payload;
 };
 
 export { User };

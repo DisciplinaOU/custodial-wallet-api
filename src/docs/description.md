@@ -1,5 +1,5 @@
 # Introduction
 
 ### Test login
-Email: test@claretnnamocha.com
+Email: test@test.com
 Password: Password123!

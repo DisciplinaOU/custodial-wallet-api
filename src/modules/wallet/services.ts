@@ -49,15 +49,12 @@ export const createWallet = async (
     const { userId } = params;
 
     const ethereumAccount = generateEthereumAddress();
-    const bitcoinAccount = generateBitcoinAddress();
 
     const user: UserSchema = await User.findByPk(userId);
 
     await user.update({
       ethereumAccount,
       ethereumAddress: ethereumAccount.address,
-      bitcoinAccount,
-      bitcoinAddress: bitcoinAccount.address,
     });
 
     return { status: true, message: "Wallet created" };
@@ -70,6 +67,29 @@ export const createWallet = async (
     };
   }
 };
+
+export const accountInfo = async (
+  params: wallet.AccountInfoRequest
+): Promise<others.Response> => {
+  try {
+    const { ethereumAddress, wallet } = await getWallet(params);
+    const balance = await wallet.getBalance();
+    const balanceInEth = ethers.utils.formatEther(balance);
+
+    return {
+      status: true,
+      message: "Account info fetched",
+      data: { ethAddress: ethereumAddress, ethBalance: balanceInEth },
+    }
+  } catch (error) {
+    return {
+      status: false,
+      message: "Error trying to fetch account info".concat(
+        devEnv ? ": " + error : ""
+      ),
+    };
+  }
+}
 
 /**
  * Swap eth to erc20 token
@@ -589,7 +609,7 @@ const etherToECR20 = async ({ currency, rate, inverse = false }) => {
 const getWallet = async ({ userId }) => {
   const user: UserSchema = await User.findByPk(userId);
   const ethereumAddress = Web3.utils.toChecksumAddress(user.ethereumAddress);
-  let { privateKey } = user.resolveAccount({});
+  let { privateKey } = await user.resolveAccount({});
 
   if (privateKey.length == 66) privateKey = privateKey.substring(2);
 

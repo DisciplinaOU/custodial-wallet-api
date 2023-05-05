@@ -1,14 +1,16 @@
 import bcrypt from "bcryptjs";
 import randomstring from "randomstring";
 import { Op } from "sequelize";
+import { jwt, rethrow } from "../../helpers";
 import { v4 as uuid } from "uuid";
 import { devEnv } from "../../configs/env";
-import { jwt, mail } from "../../helpers";
+import { mail } from "../../helpers";
 import { Token, User } from "../../models";
 import { TokenSchema, UserSchema } from "../../types/models";
 import { auth, others } from "../../types/services";
 import * as msg from "../message-templates";
 import * as wallet from "../wallet/services";
+import { AppConfig } from "../../types/config";
 
 /**
  * Creates user account
@@ -39,7 +41,7 @@ export const signUp = async (
       ...params,
     });
 
-    await wallet.createWallet({ userId: id });
+    await rethrow(wallet.createWallet({ userId: id }));
 
     const token: string = await generateToken({
       userId: id,
@@ -71,7 +73,8 @@ export const signUp = async (
  * @returns {others.Response} Contains status, message and data if any of the operation
  */
 export const signIn = async (
-  params: auth.SignInRequest
+  params: auth.SignInRequest,
+  config: AppConfig,
 ): Promise<others.Response> => {
   try {
     const { email, password } = params;
@@ -109,9 +112,10 @@ export const signIn = async (
       return { status: false, message: "Please verify your email" };
     }
 
-    const data = jwt.generate({
-      payload: user.id,
-      loginValidFrom: user.loginValidFrom,
+    const data = await jwt.generate({
+      payload: { data: { publicAddress: user.ethereumAddress }},
+      expiresIn: "7d",
+      secret: config.jwtSecret,
     });
 
     return { status: true, message: "Login successful", data };

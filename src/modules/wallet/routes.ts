@@ -5,6 +5,8 @@ import * as validator from "./validators";
 
 const routes = Router();
 
+routes.get("/account-info", validate(validator.accountInfo), controller(wallet.accountInfo));
+
 routes.post(
   "/eth-to-erc20",
   validate(validator.erc20ToEth),
