@@ -5,7 +5,7 @@
   "displayName": "My Custodial Wallet",
   "main": "src/index.ts",
   "scripts": {
-    "build": "tsc src/index.ts",
+    "build": "tsc -p tsconfig.json",
     "start": "ts-node src/index.ts",
     "dev": "nodemon --exec ts-node src/index.ts",
     "postinstall": "cd 'src/helpers' && yarn"
