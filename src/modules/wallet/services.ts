@@ -284,7 +284,6 @@ export const gaslessErc20ToEth = async (
     const {
       wallet: account,
       ethereumAddress: recipient,
-      privateKey,
     } = await getWallet({ userId });
 
     const { wallet: liquidityAccount, ethereumAddress: sender } =
@@ -573,17 +572,6 @@ const generateEthereumAddress = () => {
   return ethereumAccount;
 };
 
-const generateBitcoinAddress = () => {
-  bitcore.Networks["defaultNetwork"] = bitcore.Networks[btcNetwork];
-
-  let privateKey: bitcore.PrivateKey | string = new bitcore.PrivateKey();
-  const wif = privateKey.toWIF();
-  const address = privateKey.toAddress().toString();
-  privateKey = privateKey.toString();
-
-  return { wif, address, privateKey };
-};
-
 const etherToECR20 = async ({ currency, rate, inverse = false }) => {
   let res = await fetch(
     `https://api.coingecko.com/api/v3/simple/price?ids=${coinGeckMap[currency]}&vs_currencies=usd`
@@ -606,7 +594,7 @@ const etherToECR20 = async ({ currency, rate, inverse = false }) => {
     : unitPrice / (rate / Math.pow(10, 18));
 };
 
-const getWallet = async ({ userId }) => {
+export const getWallet = async ({ userId }) => {
   const user: UserSchema = await User.findByPk(userId);
   const ethereumAddress = Web3.utils.toChecksumAddress(user.ethereumAddress);
   let { privateKey } = await user.resolveAccount({});

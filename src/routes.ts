@@ -4,6 +4,7 @@ import { authenticate } from "./middlewares";
 import auth from "./modules/auth/routes";
 import user from "./modules/user/routes";
 import wallet from "./modules/wallet/routes";
+import certgen from "./modules/certgen/routes";
 
 const routes = Router();
 
@@ -16,6 +17,8 @@ routes.use(authenticate());
 routes.use("/user", user);
 
 routes.use("/wallet", wallet);
+
+routes.use("/certgen", certgen);
 
 api.use("/api", routes);
 

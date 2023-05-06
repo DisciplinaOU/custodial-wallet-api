@@ -5,28 +5,14 @@ import * as validator from "./validators";
 
 const routes = Router();
 
-routes.get("/account-info", validate(validator.accountInfo), controller(wallet.accountInfo));
-
-routes.post(
-  "/eth-to-erc20",
-  validate(validator.erc20ToEth),
-  controller(wallet.ethToErc20V2)
+routes.get(
+  "/account-info",
+  validate(validator.accountInfo),
+  controller(wallet.accountInfo)
 );
 
 routes.post(
-  "/erc20-to-eth",
-  validate(validator.erc20ToEth),
-  controller(wallet.erc20ToEthV2)
-);
-
-routes.post(
-  "/erc20-to-eth-v2",
-  validate(validator.erc20ToEth),
-  controller(wallet.gaslessErc20ToEth)
-);
-
-routes.post(
-  "/send-ecr20",
+  "/send-erc20",
   validate(validator.sendErc20),
   controller(wallet.sendErc20Token)
 );

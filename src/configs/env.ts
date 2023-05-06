@@ -11,6 +11,8 @@ const schema = Joi.object({
   JWT_SECRET_PATH: Joi.string().required(),
   WALLET_SECRET: Joi.string().required(),
   ETH_PROVIDER_URL: Joi.string().required(),
+  CERTGEN_API_URL: Joi.string().required(),
+  DISCIPLINA_CONTRACT: Joi.string().required(),
   DB_URL: Joi.string().required().description("Database connection URL"),
   DB_DIALECT: Joi.string().required().description("Database type"),
   BTC_NETWORK: Joi.string().required(),
@@ -34,6 +36,8 @@ export const walletSecret = value.WALLET_SECRET;
 export const dialect = value.DB_DIALECT;
 export const devEnv = env === "development";
 export const ethProviderUrl = value.ETH_PROVIDER_URL;
+export const certgenApiUrl = value.CERTGEN_API_URL;
+export const disciplinaContractAddr = value.DISCIPLINA_CONTRACT;
 export const btcNetwork = value.BTC_NETWORK;
 export const ethChainId = value.ETH_CHAIN_ID;
 export const uniswapV2ExchangeAddress = value.UNISWAP_V2_EXCHANGE_ADDRESS;

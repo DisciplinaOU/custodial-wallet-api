@@ -5,6 +5,7 @@
   "displayName": "My Custodial Wallet",
   "main": "src/index.ts",
   "scripts": {
+    "build": "tsc src/index.ts",
     "start": "ts-node src/index.ts",
     "dev": "nodemon --exec ts-node src/index.ts",
     "postinstall": "cd 'src/helpers' && yarn"
@@ -15,6 +16,7 @@
   "dependencies": {
     "@bull-board/api": "^3.6.0",
     "@bull-board/express": "^3.6.0",
+    "@types/axios": "^0.14.0",
     "@types/bcryptjs": "^2.4.2",
     "@types/big.js": "^6.1.2",
     "@types/bitcore-lib": "^0.15.3",
@@ -31,6 +33,7 @@
     "@uniswap/sdk-core": "^3.0.1",
     "@uniswap/smart-order-router": "^2.5.13",
     "@uniswap/v3-sdk": "^3.8.1",
+    "axios": "^1.4.0",
     "bcryptjs": "^2.4.3",
     "big.js": "^6.1.1",
     "bitcore-lib": "^8.25.25",

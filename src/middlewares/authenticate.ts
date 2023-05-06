@@ -16,8 +16,9 @@ export const authenticate =
         if (!authorization)
           return response(res, { status: false, message: "Unauthorized" }, 401);
 
+        const token = authorization.replace("Bearer ", "");
         const { payload: { data: { publicAddress }, exp } }: any = await jose.jwtVerify(
-          authorization.replace("Bearer ", ""),
+          token,
           req.config.jwtSecret
         );
 
@@ -42,6 +43,7 @@ export const authenticate =
 
         req.form = req.form || {};
         req.form.userId = user.id;
+        req.form.authToken = token;
 
         next();
       } catch (e) {
