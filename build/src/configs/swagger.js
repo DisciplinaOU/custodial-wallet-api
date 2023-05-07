@@ -10,7 +10,7 @@ var swagger_jsdoc_1 = __importDefault(require("swagger-jsdoc"));
 var package_json_1 = require("../../package.json");
 var env_1 = require("./env");
 var description = function () {
-    return fs_1["default"].readFileSync("src//docs/description.md").toString();
+    return fs_1["default"].readFileSync(path_1["default"].resolve(__dirname, "../docs/description.md")).toString();
 };
 var swagger = {
     swaggerDefinition: {

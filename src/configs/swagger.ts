@@ -5,7 +5,7 @@ import { displayName, version } from "../../package.json";
 import { env, port } from "./env";
 
 const description = () =>
-  fs.readFileSync("src//docs/description.md").toString();
+  fs.readFileSync(path.resolve(__dirname, "../docs/description.md")).toString();
 
 const swagger: Options = {
   swaggerDefinition: {
