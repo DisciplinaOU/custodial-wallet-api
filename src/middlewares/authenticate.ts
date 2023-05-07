@@ -1,7 +1,7 @@
 import { NextFunction, Response } from "express";
 import * as jose from "jose";
 import { env } from "../configs";
-import { response } from "../helpers";
+import { response } from "../utils";
 import { User } from "../models";
 import { CustomRequest } from "../types/controllers";
 import { auth } from "../types/middlewares";

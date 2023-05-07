@@ -23,9 +23,14 @@ export const authenticate = ({ clear = false }) => {
   db.authenticate()
     .then(async () => {
       console.log("Connection to Database has been established successfully.");
-      const models = require("../models");
       const opts = clear ? { force: true } : { alter: true };
-      for (let schema in models) await models[schema].sync(opts);
+      const models = await import("../models");
+
+      for (let schema in models) {
+        if (!schema.startsWith('__')) {
+          await models[schema].sync(opts);
+        }
+      }
       if (clear) await seed(models);
       console.log("Migrated");
     })

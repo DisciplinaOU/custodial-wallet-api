@@ -34,6 +34,7 @@ build/Release
 
 # Build folder
 build
+dist
 
 # Dependency directories
 node_modules/

@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { response } from "../helpers";
+import { response } from "../utils";
 import { CustomRequest } from "../types/controllers";
 
 export const controller =

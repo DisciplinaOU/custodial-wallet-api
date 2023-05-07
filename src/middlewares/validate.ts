@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import Joi from "joi";
-import { response } from "../helpers";
+import { response } from "../utils";
 import { CustomRequest } from "../types/controllers";
 
 export const validate =

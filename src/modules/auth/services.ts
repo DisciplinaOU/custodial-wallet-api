@@ -1,10 +1,9 @@
 import bcrypt from "bcryptjs";
 import randomstring from "randomstring";
 import { Op } from "sequelize";
-import { jwt, rethrow } from "../../helpers";
+import { generate as jwtGenerate, rethrow } from "../../utils";
 import { v4 as uuid } from "uuid";
 import { devEnv } from "../../configs/env";
-import { mail } from "../../helpers";
 import { Token, User } from "../../models";
 import { TokenSchema, UserSchema } from "../../types/models";
 import { auth, others } from "../../types/services";
@@ -25,7 +24,7 @@ export const signUp = async (
 
     for (const param of ["email", "phone"]) {
       const where: object = { [param]: params[param] };
-      const duplicate: UserSchema = await User.findOne({ where });
+      const duplicate: UserSchema = await User.findOne(where);
       if (duplicate) {
         return {
           status: false,
@@ -49,12 +48,12 @@ export const signUp = async (
     });
 
     const { text, html } = msg.registration({ token, firstname, email });
-    mail.pepipost.send({
-      to: email,
-      subject: "Registration Complete",
-      text,
-      html,
-    });
+    // mail.pepipost.send({
+    //   to: email,
+    //   subject: "Registration Complete",
+    //   text,
+    //   html,
+    // });
 
     return { status: true, message: "Registration Successful" };
   } catch (error) {
@@ -102,17 +101,17 @@ export const signIn = async (
         firstname: user.firstname,
         email: user.email,
       });
-      mail.pepipost.send({
-        to: user.email,
-        subject: "Verify your email",
-        text,
-        html,
-      });
+      // mail.pepipost.send({
+      //   to: user.email,
+      //   subject: "Verify your email",
+      //   text,
+      //   html,
+      // });
 
       return { status: false, message: "Please verify your email" };
     }
 
-    const data = await jwt.generate({
+    const data = await jwtGenerate({
       payload: { data: { publicAddress: user.ethereumAddress }},
       expiresIn: "7d",
       secret: config.jwtSecret,
@@ -155,12 +154,12 @@ export const verifyAccount = async (
         firstname: user.firstname,
         email: user.email,
       });
-      mail.pepipost.send({
-        to: user.email,
-        subject: "Verify your email",
-        text,
-        html,
-      });
+      // mail.pepipost.send({
+      //   to: user.email,
+      //   subject: "Verify your email",
+      //   text,
+      //   html,
+      // });
 
       return { status: true, message: "Check your email" };
     }
@@ -226,12 +225,12 @@ export const initiateReset = async (
       token,
       firstname: user.firstname,
     });
-    mail.pepipost.send({
-      to: user.email,
-      subject: "Reset Password",
-      text,
-      html,
-    });
+    // mail.pepipost.send({
+    //   to: user.email,
+    //   subject: "Reset Password",
+    //   text,
+    //   html,
+    // });
 
     return { status: true, message: "Check your email" };
   } catch (error) {

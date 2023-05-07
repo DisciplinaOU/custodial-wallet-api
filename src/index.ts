@@ -5,7 +5,7 @@ import swaggerUi from "swagger-ui-express";
 import { displayName } from "../package.json";
 import { bullBoard, db, env, security, swagger, runtime } from "./configs";
 import { configure } from "./middlewares";
-import { response } from "./helpers";
+import { response } from "./utils";
 import routes from "./routes";
 
 const port: number = env.port;

@@ -1,5 +1,5 @@
 import { Response, Router } from "express";
-import { response } from "./helpers";
+import { response } from "./utils";
 import { authenticate } from "./middlewares";
 import auth from "./modules/auth/routes";
 import user from "./modules/user/routes";

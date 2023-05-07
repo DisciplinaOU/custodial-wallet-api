@@ -1,5 +1,5 @@
 import { devEnv } from "../../configs/env";
-import { jwt } from "../../helpers";
+import { generate as jwtGenerate } from "../../utils";
 import { User } from "../../models";
 import { AppConfig } from "../../types/config";
 import { UserSchema } from "../../types/models";
@@ -114,7 +114,7 @@ export const logOtherDevicesOut = async (
     const user: UserSchema = await User.findByPk(userId);
     await user.update({ loginValidFrom: Date.now().toString() });
 
-    const data: any = jwt.generate({
+    const data: any = jwtGenerate({
       payload: { data: { publicAddress: user.ethereumAddress }},
       expiresIn: "7d",
       secret: config.jwtSecret,
