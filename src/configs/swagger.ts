@@ -1,4 +1,5 @@
 import fs from "fs";
+import path from "path";
 import swaggerJsDoc, { Options } from "swagger-jsdoc";
 import { displayName, version } from "../../package.json";
 import { env, port } from "./env";
@@ -17,7 +18,7 @@ const swagger: Options = {
     },
     basePath: "/api",
   },
-  apis: ["./src/docs/*.yml"],
+  apis: [path.resolve(__dirname, "../docs/*.yml")],
 };
 
 const config = swaggerJsDoc(swagger);

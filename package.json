@@ -5,10 +5,10 @@
   "displayName": "My Custodial Wallet",
   "main": "build/src/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp -r src/docs build/src/docs",
     "start": "ts-node src/index.ts",
     "dev": "nodemon --exec ts-node src/index.ts",
-    "prod": "node build/index.js"
+    "prod": "node build/src/index.js"
   },
   "keywords": [],
   "author": "Claret Nnamocha <devclareo@gmail.com>",

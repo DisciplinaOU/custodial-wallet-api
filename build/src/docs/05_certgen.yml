@@ -1,0 +1,98 @@
+paths:
+  /certgen/certificates:
+    get:
+      tags:
+        - Certgen
+      produces:
+        - application/json
+      security:
+        - Bearer: []
+      parameters:
+        - in: query
+          name: onlyCount
+          type: boolean
+          required: false
+        - in: query
+          name: offset
+          type: integer
+          required: false
+        - in: query
+          name: limit
+          type: integer
+          required: false
+        - in: query
+          name: sortBy
+          type: string
+          required: false
+      responses:
+        200:
+          description: Success
+        400:
+          description: Error
+        500:
+          description: Server down
+  /certgen/certificate/{certificateId}:
+    get:
+      tags:
+        - Certgen
+      produces:
+        - application/json
+      security:
+        - Bearer: []
+      parameters:
+        - in: path
+          name: certificateId
+          type: string
+          required: true
+      responses:
+        200:
+          description: Success
+        400:
+          description: Error
+        500:
+          description: Server down
+    put:
+      tags:
+        - Certgen
+      produces:
+        - application/json
+      security:
+        - Bearer: []
+      parameters:
+        - in: path
+          name: certificateId
+          type: string
+          required: true
+        - in: body
+          name: datas
+          type: array
+          required: true
+      responses:
+        200:
+          description: Success
+        400:
+          description: Error
+        500:
+          description: Server down
+ 
+  /certgen/certificate:
+    post:
+      tags:
+        - Certgen
+      produces:
+        - application/json
+      security:
+        - Bearer: []
+      parameters:
+        - in: body
+          name: certificateData
+          type: object
+          required: true
+      responses:
+        200:
+          description: Success
+        400:
+          description: Error
+        500:
+          description: Server down
+

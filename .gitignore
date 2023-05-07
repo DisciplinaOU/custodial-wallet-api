@@ -83,3 +83,5 @@ typings/
 
 # Secrets
 secret.pem
+
+result
