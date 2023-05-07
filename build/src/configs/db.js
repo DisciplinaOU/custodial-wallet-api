@@ -62,7 +62,7 @@ exports.__esModule = true;
 exports.authenticate = exports.db = void 0;
 var sequelize_1 = require("sequelize");
 var env_1 = require("./env");
-var dialectOptions = (env_1.dbURL.includes("localhost") | env_1.dbURL.includes("?host=/run"))
+var dialectOptions = (env_1.dbURL.includes("localhost") | env_1.dbURL.includes("?host=/"))
     ? {}
     : { ssl: { require: true, rejectUnauthorized: false } };
 exports.db = new sequelize_1.Sequelize(env_1.dbURL, {
