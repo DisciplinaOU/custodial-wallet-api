@@ -29,6 +29,8 @@ var schema = joi_1["default"].object({
 var _a = schema.validate(process.env), error = _a.error, value = _a.value;
 if (error)
     throw error;
+console.log('ENV VALUES');
+console.log(value);
 exports.env = value.NODE_ENV;
 exports.port = parseInt(value.PORT);
 exports.dbURL = value.DB_URL;

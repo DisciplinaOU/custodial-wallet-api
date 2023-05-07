@@ -28,6 +28,10 @@ const { error, value } = schema.validate(process.env);
 
 if (error) throw error;
 
+
+console.log('ENV VALUES');
+console.log(value);
+
 export const env = value.NODE_ENV;
 export const port = parseInt(value.PORT);
 export const dbURL = value.DB_URL;
