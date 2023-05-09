@@ -61,41 +61,50 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-exports.updateCertificate = exports.createCertificate = exports.getCertificate = exports.listCertificates = void 0;
+exports.directProxy = void 0;
 var axios_1 = __importDefault(require("axios"));
+var http_proxy_middleware_1 = require("http-proxy-middleware");
 var env_1 = require("../../configs/env");
 var services_1 = require("../wallet/services");
 var disciplina_1 = require("../../contracts/disciplina");
 var certEndpoint = axios_1["default"].create({ baseURL: env_1.certgenApiUrl });
+var directProxy = function (pathSuffix) {
+    var _a;
+    if (pathSuffix === void 0) { pathSuffix = ""; }
+    return (0, http_proxy_middleware_1.createProxyMiddleware)({
+        target: env_1.certgenApiUrl + pathSuffix,
+        changeOrigin: true,
+        pathRewrite: (_a = {}, _a["^/.*/certgen".concat(pathSuffix)] = '', _a),
+        selfHandleResponse: true,
+        onProxyReq: function (proxyReq, req, res) {
+            if (req.body) {
+                var bodyData = JSON.stringify(req.body);
+                // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
+                proxyReq.setHeader('Content-Type', 'application/json');
+                proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+                // stream the content
+                proxyReq.write(bodyData);
+            }
+        },
+        onProxyRes: (0, http_proxy_middleware_1.responseInterceptor)(interceptAndPublishHeaders),
+        logLevel: "debug"
+    });
+};
+exports.directProxy = directProxy;
 var proxyRequest = function (_a) { return __awaiter(void 0, void 0, void 0, function () {
     var headers, response;
-    var method = _a.method, url = _a.url, authToken = _a.authToken, rest = __rest(_a, ["method", "url", "authToken"]);
-    return __generator(this, function (_b) {
-        switch (_b.label) {
+    var method = _a.method, url = _a.url, authToken = _a.authToken, _b = _a.additionalHeaders, additionalHeaders = _b === void 0 ? {} : _b, rest = __rest(_a, ["method", "url", "authToken", "additionalHeaders"]);
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
-                headers = { "Authorization": "Bearer ".concat(authToken) };
+                headers = __assign({ "Authorization": "Bearer ".concat(authToken) }, additionalHeaders);
                 return [4 /*yield*/, certEndpoint.request(__assign({ method: method, url: url, headers: headers }, rest))];
             case 1:
-                response = _b.sent();
+                response = _c.sent();
                 return [2 /*return*/, response.data];
         }
     });
 }); };
-var wrapProxyError = function (error, msgPrefix) {
-    var data = {
-        status: false,
-        message: msgPrefix.concat(env_1.devEnv ? ": " + error : "")
-    };
-    if (error.response) {
-        return {
-            code: error.response.status,
-            payload: data
-        };
-    }
-    else {
-        return data;
-    }
-};
 var publishUnpublishedHeaders = function (userId, authToken, headers) { return __awaiter(void 0, void 0, void 0, function () {
     var wallet, curContract, updatedHeaders, _i, _a, fullHeader, header, headerHash, prevBlock, _b, root, transactionsNum, tx, waitResult, txId;
     return __generator(this, function (_c) {
@@ -143,125 +152,100 @@ var publishUnpublishedHeaders = function (userId, authToken, headers) { return _
         }
     });
 }); };
-var listCertificates = function (params) { return __awaiter(void 0, void 0, void 0, function () {
-    var authToken, data, error_1;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+var interceptAndPublishHeaders = function (responseBuffer, proxyRes, req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, userId, authToken, response, headers, updatedHeaders, updatedResponse, error_1;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
             case 0:
-                _a.trys.push([0, 2, , 3]);
-                authToken = params.authToken;
-                delete params.authToken;
-                return [4 /*yield*/, proxyRequest({
-                        method: "GET",
-                        url: "/certificates",
-                        authToken: authToken,
-                        params: params
-                    })];
+                if (!(["POST", "PUT"].includes(req.method) && [200, 201].includes(proxyRes.statusCode))) return [3 /*break*/, 4];
+                _a = req.form, userId = _a.userId, authToken = _a.authToken;
+                response = JSON.parse(responseBuffer.toString());
+                headers = response.headers;
+                if (!headers) return [3 /*break*/, 4];
+                _b.label = 1;
             case 1:
-                data = _a.sent();
-                return [2 /*return*/, {
-                        status: true,
-                        message: "Certificates listed",
-                        data: data
-                    }];
+                _b.trys.push([1, 3, , 4]);
+                return [4 /*yield*/, publishUnpublishedHeaders(userId, authToken, headers)];
             case 2:
-                error_1 = _a.sent();
-                return [2 /*return*/, wrapProxyError(error_1, "Error trying to list certificates")];
-            case 3: return [2 /*return*/];
+                updatedHeaders = _b.sent();
+                updatedResponse = __assign(__assign({}, response), { headers: updatedHeaders });
+                console.log('Updated response: ', updatedResponse);
+                return [2 /*return*/, JSON.stringify(updatedResponse)];
+            case 3:
+                error_1 = _b.sent();
+                res.statusCode = 500;
+                return [2 /*return*/, JSON.stringify({ error: error_1.message })];
+            case 4: return [2 /*return*/, responseBuffer];
         }
     });
 }); };
-exports.listCertificates = listCertificates;
-var getCertificate = function (_a) {
-    var authToken = _a.authToken, certificateId = _a.certificateId;
-    return __awaiter(void 0, void 0, void 0, function () {
-        var data, error_2;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0:
-                    _b.trys.push([0, 2, , 3]);
-                    return [4 /*yield*/, proxyRequest({
-                            method: "GET",
-                            url: "/certificates/".concat(certificateId),
-                            authToken: authToken
-                        })];
-                case 1:
-                    data = _b.sent();
-                    return [2 /*return*/, {
-                            status: true,
-                            message: "Certificate fetched",
-                            data: data
-                        }];
-                case 2:
-                    error_2 = _b.sent();
-                    return [2 /*return*/, wrapProxyError(error_2, "Error trying to fetch certificate")];
-                case 3: return [2 /*return*/];
-            }
-        });
-    });
-};
-exports.getCertificate = getCertificate;
-var createCertificate = function (params) { return __awaiter(void 0, void 0, void 0, function () {
-    var authToken, userId, data, headers, updatedHeaders, error_3;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                _a.trys.push([0, 2, , 3]);
-                authToken = params.authToken, userId = params.userId;
-                delete params.authToken;
-                delete params.userId;
-                return [4 /*yield*/, proxyRequest({
-                        method: "POST",
-                        url: "/certificate",
-                        authToken: authToken,
-                        data: params
-                    })];
-            case 1:
-                data = _a.sent();
-                headers = data.headers;
-                updatedHeaders = publishUnpublishedHeaders(userId, authToken, headers);
-                return [2 /*return*/, {
-                        status: true,
-                        message: "Certificate created",
-                        data: __assign(__assign({}, data), { headers: updatedHeaders })
-                    }];
-            case 2:
-                error_3 = _a.sent();
-                return [2 /*return*/, wrapProxyError(error_3, "Error trying to create certificate")];
-            case 3: return [2 /*return*/];
-        }
-    });
-}); };
-exports.createCertificate = createCertificate;
-var updateCertificate = function (_a) {
-    var authToken = _a.authToken, userId = _a.userId, certificateId = _a.certificateId, datas = _a.datas;
-    return __awaiter(void 0, void 0, void 0, function () {
-        var data, headers, updatedHeaders, error_4;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0:
-                    _b.trys.push([0, 2, , 3]);
-                    return [4 /*yield*/, proxyRequest({
-                            method: "PUT",
-                            url: "/certificate/".concat(certificateId),
-                            authToken: authToken,
-                            data: datas
-                        })];
-                case 1:
-                    data = _b.sent();
-                    headers = data.headers;
-                    updatedHeaders = publishUnpublishedHeaders(userId, authToken, headers);
-                    return [2 /*return*/, {
-                            status: true,
-                            message: "Certificate created",
-                            data: __assign(__assign({}, data), { headers: updatedHeaders })
-                        }];
-                case 2:
-                    error_4 = _b.sent();
-                    return [2 /*return*/, wrapProxyError(error_4, "Error trying to update certificate")];
-                case 3: return [2 /*return*/];
-            }
-        });
-    });
-};
-exports.updateCertificate = updateCertificate;
+// export const listCertificates = async (
+//   params: certgen.ListCertificatesRequest
+// ) => {
+//   try {
+//     const { authToken } = params;
+//     delete params.authToken;
+//     const data = await proxyRequest({
+//       method: "GET",
+//       url: "/certificates",
+//       authToken,
+//       params,
+//     });
+//     return {
+//       status: true,
+//       message: "Certificates listed",
+//       data,
+//     };
+//   } catch (error) {
+//     return wrapProxyError(error, "Error trying to list certificates");
+//   }
+// }
+// export const createCertificate = async (
+//   params: certgen.CreateCertificateRequest,
+// ) => {
+//   try {
+//     const { authToken, userId } = params;
+//     delete params.authToken;
+//     delete params.userId;
+//     const data = await proxyRequest({
+//       method: "POST",
+//       url: "/certificate",
+//       authToken,
+//       data: params,
+//     });
+//     const { headers } = data;
+//     const updatedHeaders = publishUnpublishedHeaders(userId, authToken, headers);
+//     console.log(updatedHeaders);
+//     return {
+//       status: true,
+//       message: "Certificate created",
+//       data: { ...data, headers: updatedHeaders },
+//     }
+//   } catch (error) {
+//     return wrapProxyError(error, "Error trying to create certificate")
+//   }
+// }
+// export const updateCertificate = async ({
+//   authToken,
+//   userId,
+//   certificateId,
+//   datas,
+// }: certgen.UpdateCertificateRequest) => {
+//   try {
+//     const data = await proxyRequest({
+//       method: "PUT",
+//       url: `/certificate/${certificateId}`,
+//       authToken,
+//       data: datas,
+//     });
+//     const { headers } = data;
+//     const updatedHeaders = publishUnpublishedHeaders(userId, authToken, headers);
+//     return {
+//       status: true,
+//       message: "Certificate created",
+//       data: { ...data, headers: updatedHeaders },
+//     }
+//   } catch (error) {
+//     return wrapProxyError(error, "Error trying to update certificate");
+//   }
+// }

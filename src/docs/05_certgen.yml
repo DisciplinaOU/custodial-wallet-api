@@ -36,7 +36,7 @@ paths:
       tags:
         - Certgen
       produces:
-        - application/json
+        - application/pdf
       security:
         - Bearer: []
       parameters:

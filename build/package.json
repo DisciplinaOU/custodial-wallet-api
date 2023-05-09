@@ -48,6 +48,7 @@
         "evm-bn": "^1.1.1",
         "express": "^4.17.1",
         "express-form-data": "^2.0.14",
+        "http-proxy-middleware": "^2.0.6",
         "joi": "^17.4.0",
         "joi-password-complexity": "^5.1.0",
         "joi-phone-number": "^5.0.1",
