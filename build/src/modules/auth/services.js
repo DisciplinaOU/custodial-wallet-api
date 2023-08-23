@@ -88,47 +88,47 @@ var wallet = __importStar(require("../wallet/services"));
  * @returns {others.Response} Contains status, message and data if any of the operation
  */
 var signUp = function (params) { return __awaiter(void 0, void 0, void 0, function () {
-    var email, firstname, _i, _a, param, where, duplicate, id, token, _b, text, html, error_1;
-    var _c;
-    return __generator(this, function (_d) {
-        switch (_d.label) {
+    var email, firstname, _i, _a, param, where, duplicate, id, token, error_1;
+    var _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
-                _d.trys.push([0, 8, , 9]);
+                _c.trys.push([0, 8, , 9]);
                 email = params.email, firstname = params.firstname;
                 _i = 0, _a = ["email", "phone"];
-                _d.label = 1;
+                _c.label = 1;
             case 1:
                 if (!(_i < _a.length)) return [3 /*break*/, 4];
                 param = _a[_i];
-                where = (_c = {}, _c[param] = params[param], _c);
-                return [4 /*yield*/, models_1.User.findOne(where)];
+                where = (_b = {}, _b[param] = params[param], _b);
+                return [4 /*yield*/, models_1.User.findOne({ where: where })];
             case 2:
-                duplicate = _d.sent();
+                duplicate = _c.sent();
                 if (duplicate) {
                     return [2 /*return*/, {
                             status: false,
                             message: "This ".concat(param, " has been used to open an account on this platform")
                         }];
                 }
-                _d.label = 3;
+                _c.label = 3;
             case 3:
                 _i++;
                 return [3 /*break*/, 1];
             case 4:
                 id = (0, uuid_1.v4)();
-                return [4 /*yield*/, models_1.User.create(__assign({ id: id }, params))];
+                return [4 /*yield*/, models_1.User.create(__assign({ id: id, verifiedemail: true }, params))];
             case 5:
-                _d.sent();
+                _c.sent();
                 return [4 /*yield*/, (0, utils_1.rethrow)(wallet.createWallet({ userId: id }))];
             case 6:
-                _d.sent();
+                _c.sent();
                 return [4 /*yield*/, generateToken({
                         userId: id,
                         length: 10
                     })];
             case 7:
-                token = _d.sent();
-                _b = msg.registration({ token: token, firstname: firstname, email: email }), text = _b.text, html = _b.html;
+                token = _c.sent();
+                // const { text, html } = msg.registration({ token, firstname, email });
                 // mail.pepipost.send({
                 //   to: email,
                 //   subject: "Registration Complete",
@@ -137,7 +137,7 @@ var signUp = function (params) { return __awaiter(void 0, void 0, void 0, functi
                 // });
                 return [2 /*return*/, { status: true, message: "Registration Successful" }];
             case 8:
-                error_1 = _d.sent();
+                error_1 = _c.sent();
                 return [2 /*return*/, {
                         status: false,
                         message: "Error trying to create account".concat(env_1.devEnv ? ": " + error_1 : "")

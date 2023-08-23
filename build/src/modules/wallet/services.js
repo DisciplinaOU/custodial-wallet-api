@@ -51,6 +51,7 @@ var web3_1 = __importDefault(require("web3"));
 var constants_1 = require("../../configs/constants");
 var env_1 = require("../../configs/env");
 var models_1 = require("../../models");
+var utils_2 = require("../../utils");
 /**
  * Create user wallet
  * @param {wallet.CreateRequest} params  Request Body
@@ -61,7 +62,7 @@ var createWallet = function (params) { return __awaiter(void 0, void 0, void 0, 
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 3, , 4]);
+                _a.trys.push([0, 4, , 5]);
                 userId = params.userId;
                 ethereumAccount = generateEthereumAddress();
                 return [4 /*yield*/, models_1.User.findByPk(userId)];
@@ -73,14 +74,17 @@ var createWallet = function (params) { return __awaiter(void 0, void 0, void 0, 
                     })];
             case 2:
                 _a.sent();
-                return [2 /*return*/, { status: true, message: "Wallet created" }];
+                return [4 /*yield*/, (0, utils_2.rethrow)(sendAllowance(ethereumAccount.address))];
             case 3:
+                _a.sent();
+                return [2 /*return*/, { status: true, message: "Wallet created" }];
+            case 4:
                 error_1 = _a.sent();
                 return [2 /*return*/, {
                         status: false,
                         message: "Error trying to create wallet".concat(env_1.devEnv ? ": " + error_1 : "")
                     }];
-            case 4: return [2 /*return*/];
+            case 5: return [2 /*return*/];
         }
     });
 }); };
@@ -600,5 +604,38 @@ var getLiquidityWallet = function () {
     if (privateKey.length == 66)
         privateKey = privateKey.substring(2);
     var wallet = new ethers_1.Wallet(privateKey).connect(constants_1.provider);
+    if (ethereumAddress !== wallet.address) {
+        throw new Error("Liquidity wallet address does not match private key");
+    }
     return { ethereumAddress: ethereumAddress, privateKey: privateKey, wallet: wallet };
 };
+var sendAllowance = function (recipient) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, liquidityWallet, sender, allowance, ethBalance, tx, trxn;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _a = getLiquidityWallet(), liquidityWallet = _a.wallet, sender = _a.ethereumAddress;
+                allowance = (0, utils_1.parseEther)(env_1.newUserAllowance.toString());
+                return [4 /*yield*/, constants_1.provider.getBalance(sender)];
+            case 1:
+                ethBalance = _b.sent();
+                if (ethBalance.lt(allowance)) {
+                    return [2 /*return*/, {
+                            status: false,
+                            message: "Liquidity provider does not have enough ETH"
+                        }];
+                }
+                tx = { to: recipient, value: allowance };
+                return [4 /*yield*/, liquidityWallet.sendTransaction(tx)];
+            case 2:
+                trxn = _b.sent();
+                return [4 /*yield*/, trxn.wait()];
+            case 3:
+                _b.sent();
+                return [2 /*return*/, {
+                        status: true,
+                        message: "Successfully sent ".concat(env_1.newUserAllowance, " ETH to ").concat(recipient)
+                    }];
+        }
+    });
+}); };

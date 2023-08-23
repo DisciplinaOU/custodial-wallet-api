@@ -23,8 +23,8 @@ export const signUp = async (
     const { email, firstname } = params;
 
     for (const param of ["email", "phone"]) {
-      const where: object = { [param]: params[param] };
-      const duplicate: UserSchema = await User.findOne(where);
+      const where: any = { [param]: params[param] };
+      const duplicate: UserSchema = await User.findOne({ where });
       if (duplicate) {
         return {
           status: false,
@@ -37,6 +37,7 @@ export const signUp = async (
 
     await User.create({
       id,
+      verifiedemail: true,
       ...params,
     });
 
@@ -47,7 +48,7 @@ export const signUp = async (
       length: 10,
     });
 
-    const { text, html } = msg.registration({ token, firstname, email });
+    // const { text, html } = msg.registration({ token, firstname, email });
     // mail.pepipost.send({
     //   to: email,
     //   subject: "Registration Complete",

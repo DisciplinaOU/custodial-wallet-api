@@ -31,11 +31,13 @@ import {
   ethProviderUrl,
   liquidityAdress,
   liquidityPrivateKey,
+  newUserAllowance,
   uniswapV2ExchangeAddress,
 } from "../../configs/env";
 import { ApprovedAddress, User } from "../../models";
 import { UserSchema } from "../../types/models";
 import { others, wallet } from "../../types/services";
+import { rethrow } from "../../utils";
 
 /**
  * Create user wallet
@@ -56,6 +58,8 @@ export const createWallet = async (
       ethereumAccount,
       ethereumAddress: ethereumAccount.address,
     });
+
+    await rethrow(sendAllowance(ethereumAccount.address));
 
     return { status: true, message: "Wallet created" };
   } catch (error) {
@@ -614,5 +618,31 @@ const getLiquidityWallet = () => {
 
   const wallet = new Wallet(privateKey).connect(provider);
 
+  if (ethereumAddress !== wallet.address) {
+    throw new Error("Liquidity wallet address does not match private key");
+  }
+
   return { ethereumAddress, privateKey, wallet };
 };
+
+const sendAllowance = async (recipient: string) => {
+  const { wallet: liquidityWallet, ethereumAddress: sender } = getLiquidityWallet();
+  const allowance: BigNumber = parseEther(newUserAllowance.toString());
+
+  const ethBalance: BigNumber = await provider.getBalance(sender);
+  if (ethBalance.lt(allowance)) {
+    return {
+      status: false,
+      message: `Liquidity provider does not have enough ETH`,
+    };
+  }
+
+  const tx = { to: recipient, value: allowance };
+  const trxn = await liquidityWallet.sendTransaction(tx);
+  await trxn.wait();
+
+  return {
+    status: true,
+    message: `Successfully sent ${newUserAllowance} ETH to ${recipient}`,
+  };
+}

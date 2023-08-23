@@ -20,6 +20,7 @@ const schema = Joi.object({
   UNISWAP_V2_EXCHANGE_ADDRESS: Joi.string().required(),
   LIQUIDITY_ADDRESS: Joi.string().required(),
   LIQUIDITY_PRIVATE_KEY: Joi.string().required(),
+  NEW_USER_ALLOWANCE: Joi.number().required(),
 })
   .unknown()
   .required();
@@ -27,10 +28,6 @@ const schema = Joi.object({
 const { error, value } = schema.validate(process.env);
 
 if (error) throw error;
-
-
-console.log('ENV VALUES');
-console.log(value);
 
 export const env = value.NODE_ENV;
 export const port = parseInt(value.PORT);
@@ -47,3 +44,4 @@ export const ethChainId = value.ETH_CHAIN_ID;
 export const uniswapV2ExchangeAddress = value.UNISWAP_V2_EXCHANGE_ADDRESS;
 export const liquidityAdress = value.LIQUIDITY_ADDRESS;
 export const liquidityPrivateKey = value.LIQUIDITY_PRIVATE_KEY;
+export const newUserAllowance = value.NEW_USER_ALLOWANCE;

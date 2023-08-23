@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-exports.liquidityPrivateKey = exports.liquidityAdress = exports.uniswapV2ExchangeAddress = exports.ethChainId = exports.btcNetwork = exports.disciplinaContractAddr = exports.certgenApiUrl = exports.ethProviderUrl = exports.devEnv = exports.dialect = exports.walletSecret = exports.jwtSecretPath = exports.dbURL = exports.port = exports.env = void 0;
+exports.newUserAllowance = exports.liquidityPrivateKey = exports.liquidityAdress = exports.uniswapV2ExchangeAddress = exports.ethChainId = exports.btcNetwork = exports.disciplinaContractAddr = exports.certgenApiUrl = exports.ethProviderUrl = exports.devEnv = exports.dialect = exports.walletSecret = exports.jwtSecretPath = exports.dbURL = exports.port = exports.env = void 0;
 var dotenv_1 = require("dotenv");
 var joi_1 = __importDefault(require("joi"));
 (0, dotenv_1.config)();
@@ -22,15 +22,14 @@ var schema = joi_1["default"].object({
     ETH_CHAIN_ID: joi_1["default"].number().required(),
     UNISWAP_V2_EXCHANGE_ADDRESS: joi_1["default"].string().required(),
     LIQUIDITY_ADDRESS: joi_1["default"].string().required(),
-    LIQUIDITY_PRIVATE_KEY: joi_1["default"].string().required()
+    LIQUIDITY_PRIVATE_KEY: joi_1["default"].string().required(),
+    NEW_USER_ALLOWANCE: joi_1["default"].number().required()
 })
     .unknown()
     .required();
 var _a = schema.validate(process.env), error = _a.error, value = _a.value;
 if (error)
     throw error;
-console.log('ENV VALUES');
-console.log(value);
 exports.env = value.NODE_ENV;
 exports.port = parseInt(value.PORT);
 exports.dbURL = value.DB_URL;
@@ -46,3 +45,4 @@ exports.ethChainId = value.ETH_CHAIN_ID;
 exports.uniswapV2ExchangeAddress = value.UNISWAP_V2_EXCHANGE_ADDRESS;
 exports.liquidityAdress = value.LIQUIDITY_ADDRESS;
 exports.liquidityPrivateKey = value.LIQUIDITY_PRIVATE_KEY;
+exports.newUserAllowance = value.NEW_USER_ALLOWANCE;
